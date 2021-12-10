@@ -1,0 +1,6 @@
+{
+  "transportString": "smtp://username:password@endpoint:587?pool=true&tls.rejectUnauthorized=false",
+  "from": "\"Example\" <example@example.com>",
+  "templatePath": "./template-demo.ejs",
+  "dataPath": "./data-demo.json"
+}
