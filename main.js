@@ -34,7 +34,7 @@ async function sendEmail(to, templatePath, data) {
 
   try {
     await transporter.sendMail({
-      from: from,
+      from,
       to,
       subject,
       html,
