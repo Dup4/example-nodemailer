@@ -3,29 +3,50 @@
 const nodemailer = require("nodemailer");
 const fs = require("fs");
 const ejs = require("ejs");
+const dayjs = require("dayjs");
 const { exit } = require("process");
 
 function loadConfig() {
   const configPath = process.env.CONFIG_PATH ?? "./config.json";
-  const fileData = fs.readFileSync(configPath, "utf8");
-  return JSON.parse(fileData);
+
+  let config = {};
+
+  if (fs.existsSync(configPath)) {
+    const fileData = fs.readFileSync(configPath, "utf8");
+    config = JSON.parse(fileData);
+  }
+
+  if (!config.hasOwnProperty("transportString")) {
+    config.transportString = process.env.TRANSPORT_STRING ?? "";
+  }
+
+  if (!config.hasOwnProperty("from")) {
+    config.transportString = process.env.FROM ?? "";
+  }
+
+  if (!config.hasOwnProperty("templatePath")) {
+    config.templatePath = process.env.TEMPLATE_PATH ?? "";
+  }
+
+  if (!config.hasOwnProperty("dataPath")) {
+    config.dataPath = process.env.DATA_PATH ?? "";
+  }
+
+  return config;
 }
 
-function loadData(file) {
-  const data = fs.readFileSync(file, "utf8");
+function loadData(filePath) {
+  const data = fs.readFileSync(filePath, "utf8");
   return JSON.parse(data);
 }
 
-const config = loadConfig();
+async function sendEmail(transporter, config, to, data) {
+  const now = dayjs();
 
-const { transportString, from, templatePath, dataPath } = config;
-
-const transporter = nodemailer.createTransport(transportString);
-
-async function sendEmail(to, templatePath, data) {
   const renderResult = (
-    await ejs.renderFile(templatePath, {
+    await ejs.renderFile(config.templatePath, {
       ...data,
+      date: now.toISOString(),
     })
   ).trim();
 
@@ -34,7 +55,7 @@ async function sendEmail(to, templatePath, data) {
 
   try {
     await transporter.sendMail({
-      from,
+      from: config.from,
       to,
       subject,
       html,
@@ -47,24 +68,28 @@ async function sendEmail(to, templatePath, data) {
 }
 
 async function main() {
-  const data = loadData(dataPath);
+  try {
+    const config = loadConfig();
+    const data = loadData(config.dataPath);
 
-  for (const item of data) {
-    const { name, email, username, password } = item;
+    const transporter = nodemailer.createTransport(config.transportString);
 
-    if (username.length > 0) {
-      const err = await sendEmail(email, templatePath, {
-        name,
-        username,
-        password,
-      });
+    for (const item of data) {
+      if (!item.hasOwnProperty("email")) {
+        continue;
+      }
 
+      const { email } = item;
+
+      const err = await sendEmail(transporter, config, email, { ...item });
       if (err) {
         console.error(item, err);
       } else {
         console.log(item, "success");
       }
     }
+  } catch (e) {
+    console.error(String(e));
   }
 
   exit(0);
