@@ -1,0 +1,39 @@
+# yaml-language-server: $schema=https://json-schema.org/draft-07/schema#
+name: Build Domserver
+on:
+  workflow_dispatch:
+    inputs:
+      from:
+        description: 'Where did this email come from'
+        required: true
+        default: '"Example" <example@example.com>'
+      templatePath:
+        description: 'path of template'
+        required: true
+        default: './template-demo.ejs'
+      dataPath:
+        description: 'path of data'
+        required: true
+        default: './data-demo.json'
+
+jobs:
+  send:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: 16
+          registry-url: https://registry.npmjs.org/
+
+      - name: Send email
+        run: |
+          export TRANSPORT_STRING=${{ secrets.TRANSPORT_STRING }}
+          export FROM=${{ github.event.inputs.from }}
+          export TEMPLATE_PATH=${{ github.event.inputs.templatePath }}
+          export DATA_PATH=${{ github.event.inputs.dataPath }}
+          npm install
+          node main.js
