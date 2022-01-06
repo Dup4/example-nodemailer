@@ -36,5 +36,5 @@ jobs:
           export FROM="${{ github.event.inputs.from }}"
           export TEMPLATE_PATH="${{ github.event.inputs.templatePath }}"
           export DATA_PATH="${{ github.event.inputs.dataPath }}"
-          export TRANSPORT_STRING="${{ secrets.TRANSPORT_STRING }}"
+          export TRANSPORT_STRING=${{ secrets.TRANSPORT_STRING }}
           node main.js
