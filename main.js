@@ -21,7 +21,7 @@ function loadConfig() {
   }
 
   if (!config.hasOwnProperty("from")) {
-    config.transportString = process.env.FROM ?? "";
+    config.from = process.env.FROM ?? "";
   }
 
   if (!config.hasOwnProperty("templatePath")) {
@@ -70,9 +70,6 @@ async function sendEmail(transporter, config, to, data) {
 async function main() {
   try {
     const config = loadConfig();
-
-    console.log(config);
-
     const data = loadData(config.dataPath);
 
     const transporter = nodemailer.createTransport(config.transportString);
