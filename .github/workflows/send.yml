@@ -30,11 +30,12 @@ jobs:
           registry-url: https://registry.npmjs.org/
 
       - name: Send email
+        shell: bash
         run: |
           npm install
 
-          TRANSPORT_STRING=${{ secrets.TRANSPORT_STRING }} \
-          && export FROM=${{ github.event.inputs.from }} \
-          && export TEMPLATE_PATH=${{ github.event.inputs.templatePath }} \
-          && export DATA_PATH=${{ github.event.inputs.dataPath }} \
+          export TRANSPORT_STRING=${{ secrets.TRANSPORT_STRING }}
+          export FROM=${{ github.event.inputs.from }}
+          export TEMPLATE_PATH=${{ github.event.inputs.templatePath }}
+          export DATA_PATH=${{ github.event.inputs.dataPath }}
           node main.js
