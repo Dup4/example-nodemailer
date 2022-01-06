@@ -4,15 +4,15 @@ on:
   workflow_dispatch:
     inputs:
       from:
-        description: 'Where did this email come from'
+        description: 'from'
         required: true
         default: '"Example" <example@example.com>'
       templatePath:
-        description: 'path of template'
+        description: 'templatePath'
         required: true
         default: './template-demo.ejs'
       dataPath:
-        description: 'path of data'
+        description: 'dataPath'
         required: true
         default: './data-demo.json'
 
