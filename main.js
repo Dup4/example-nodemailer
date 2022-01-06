@@ -90,6 +90,7 @@ async function main() {
     }
   } catch (e) {
     console.error(String(e));
+    exit(1);
   }
 
   exit(0);
